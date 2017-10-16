@@ -21,7 +21,7 @@ public class BusanMetroAPI {
 
         private static class VALUE {
             private static final String SERVICE_KEY = "1ZDBJy%2FOG7bUAzilIO4WmyjRhKqcGBaFTEQIkLfXQoMz9cv4UKlTfhgVghmJe9wukMYxBfSghoLyWbXyqdc9Dg%3D%3D";
-            private static final String RESPONSE_TYPE = "org/json";
+            private static final String RESPONSE_TYPE = "json";
             private static final int NUM_OF_ROWS = 100000;
         }
     }
