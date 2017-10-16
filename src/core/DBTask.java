@@ -89,8 +89,8 @@ public class DBTask extends Thread {
                 mTaskStatus.setSucceed(false);
             } else {
                 JSONObject body = response.getJSONObject("body");
-//                int itemCount = mTaskStatus.setItemSize(body.getInt("numOfRows"));
-//                int totalCount = mTaskStatus.setItemTotalSize(body.getInt("totalCount"));
+                // int itemCount = mTaskStatus.setItemSize(body.getInt("numOfRows"));
+                // int totalCount = mTaskStatus.setItemTotalSize(body.getInt("totalCount"));
                 JSONArray array = body.getJSONArray("item");
                 String sql;
                 {
