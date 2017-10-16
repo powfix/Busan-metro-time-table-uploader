@@ -76,7 +76,7 @@ public class DBTask extends Thread {
             return mTotal;
         }
     }
-
+    //
     @Override
     public void run() {
         super.run();
