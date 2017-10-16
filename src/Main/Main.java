@@ -16,7 +16,7 @@ public class Main extends Thread implements OnDBTask {
 
     public static void main(String[] args) {
         if (args.length > 0) {
-            /* TODO: Some functions... */
+            // TODO: Some functions...
         } else {
             // Start program
             getInstance().start();
@@ -77,10 +77,7 @@ public class Main extends Thread implements OnDBTask {
             }
         } catch (Exception ignore) {
             System.out.println("올바른 메뉴를 선택하세요.");
-            try {
-                Thread.sleep(500);
-            } catch (Exception ignore1) {
-            }
+            try {Thread.sleep(500);} catch (Exception ignore1) {}
             s_menu();
         }
     }

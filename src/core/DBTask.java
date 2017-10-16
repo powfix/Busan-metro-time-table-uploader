@@ -81,62 +81,67 @@ public class DBTask extends Thread {
     public void run() {
         super.run();
         try {
-            JSONObject response = new JSONObject(mAPIData = BusanMetroAPI.getResult(mStationCode)).getJSONObject("response");
-            JSONObject header = response.getJSONObject("header");
-            final String resultCode = header.getString("resultCode");
-            final String resultMsg = header.getString("resultMsg");
-            if (!resultCode.equalsIgnoreCase("00") || !resultMsg.equalsIgnoreCase("NORMAL SERVICE.")) {
-                mTaskStatus.setSucceed(false);
-            } else {
-                JSONObject body = response.getJSONObject("body");
-                // int itemCount = mTaskStatus.setItemSize(body.getInt("numOfRows"));
-                // int totalCount = mTaskStatus.setItemTotalSize(body.getInt("totalCount"));
-                JSONArray array = body.getJSONArray("item");
-                String sql;
-                {
-                    StringBuilder builder = new StringBuilder("INSERT INTO metro_time_table (LINE_NO,S_CODE,S_NAME_KR,S_NAME_EN,TRAIN_NO,HOUR,MINUTE,DAY,UPDOWN,END_S_CODE) VALUES ");
-                    JSONObject object;
-                    String LINE_NO, STATION_CODE, STATION_NAME_KR, STATION_NAME_EN, TRAIN_NUMBER, HOUR, MINUTE, DAY, UPDOWN, END_STATION_CODE;
-                    for (int i = 0; i < array.length(); ++i) {
-                        object = array.getJSONObject(i);
-                        LINE_NO = object.getString("line");
-                        STATION_CODE = object.getString("scode");
-                        STATION_NAME_KR = object.getString("sname").replace("'", "''");
-                        STATION_NAME_EN = object.getString("engname").replace("'", "''");
-                        TRAIN_NUMBER = object.getString("trainno");
-                        HOUR = object.getString("hour");
-                        MINUTE = object.getString("time");
-                        DAY = object.getString("day");
-                        UPDOWN = object.getString("updown");
-                        END_STATION_CODE = object.getString("endcode");
+            mAPIData = BusanMetroAPI.getResult(mStationCode);
+            if (mAPIData != null) {
+                JSONObject response = new JSONObject().getJSONObject("response");
+                JSONObject header = response.getJSONObject("header");
+                final String resultCode = header.getString("resultCode");
+                final String resultMsg = header.getString("resultMsg");
+                if (resultCode.equalsIgnoreCase("00") && resultMsg.equalsIgnoreCase("NORMAL SERVICE.")) {
+                    JSONObject body = response.getJSONObject("body");
+                    // int itemCount = mTaskStatus.setItemSize(body.getInt("numOfRows"));
+                    // int totalCount = mTaskStatus.setItemTotalSize(body.getInt("totalCount"));
+                    JSONArray array = body.getJSONArray("item");
+                    String sql;
+                    {
+                        StringBuilder builder = new StringBuilder("INSERT INTO metro_time_table (LINE_NO,S_CODE,S_NAME_KR,S_NAME_EN,TRAIN_NO,HOUR,MINUTE,DAY,UPDOWN,END_S_CODE) VALUES ");
+                        JSONObject object;
+                        String LINE_NO, STATION_CODE, STATION_NAME_KR, STATION_NAME_EN, TRAIN_NUMBER, HOUR, MINUTE, DAY, UPDOWN, END_STATION_CODE;
+                        for (int i = 0; i < array.length(); ++i) {
+                            object = array.getJSONObject(i);
+                            LINE_NO = object.getString("line");
+                            STATION_CODE = object.getString("scode");
+                            STATION_NAME_KR = object.getString("sname").replace("'", "''");
+                            STATION_NAME_EN = object.getString("engname").replace("'", "''");
+                            TRAIN_NUMBER = object.getString("trainno");
+                            HOUR = object.getString("hour");
+                            MINUTE = object.getString("time");
+                            DAY = object.getString("day");
+                            UPDOWN = object.getString("updown");
+                            END_STATION_CODE = object.getString("endcode");
 
-                        builder.append("('")
-                                .append(LINE_NO).append("','")
-                                .append(STATION_CODE).append("','")
-                                .append(STATION_NAME_KR).append("','")
-                                .append(STATION_NAME_EN).append("','")
-                                .append(TRAIN_NUMBER).append("','")
-                                .append(HOUR).append("','")
-                                .append(MINUTE).append("','")
-                                .append(DAY).append("','")
-                                .append(UPDOWN).append("','")
-                                .append(END_STATION_CODE).append("'),");
+                            builder.append("('")
+                                    .append(LINE_NO).append("','")
+                                    .append(STATION_CODE).append("','")
+                                    .append(STATION_NAME_KR).append("','")
+                                    .append(STATION_NAME_EN).append("','")
+                                    .append(TRAIN_NUMBER).append("','")
+                                    .append(HOUR).append("','")
+                                    .append(MINUTE).append("','")
+                                    .append(DAY).append("','")
+                                    .append(UPDOWN).append("','")
+                                    .append(END_STATION_CODE).append("'),");
+                        }
+                        // When that length < 0 Has exception
+                        if (builder.length() > 0) {
+                            // Remove last ','
+                            builder.deleteCharAt(builder.length() - 1);
+                            // builder.deleteCharAt(builder.lastIndexOf(","));
+                        }
+                        builder.append(';');
+                        sql = builder.toString();
+                        // System.out.println("SQL Query : " + (sql = builder.toString()));
                     }
-                    // When that length < 0 Has exception
-                    if (builder.length() > 0) {
-                        // Remove last ','
-                        builder.deleteCharAt(builder.length() - 1);
-    // builder.deleteCharAt(builder.lastIndexOf(","));
-                    }
-                    builder.append(';');
-                    sql = builder.toString();
-                    // System.out.println("SQL Query : " + (sql = builder.toString()));
+                    Statement stmt = DBManager.getInstance().getStatement();
+                    mTaskStatus.setQueryResultCount(stmt.executeUpdate(sql));
+                    // System.out.println("Query result : " + mTaskStatus.setQueryResultCount(stmt.executeUpdate(sql)));
+
+                    mTaskStatus.setSucceed(true);
+                } else {
+                    mTaskStatus.setSucceed(false);
                 }
-                Statement stmt = DBManager.getInstance().getStatement();
-                mTaskStatus.setQueryResultCount(stmt.executeUpdate(sql));
-                // System.out.println("Query result : " + mTaskStatus.setQueryResultCount(stmt.executeUpdate(sql)));
-
-                mTaskStatus.setSucceed(true);
+            } else {
+                mTaskStatus.setSucceed(false);
             }
         } catch (Exception e) {
             e.printStackTrace();
