@@ -83,7 +83,7 @@ public class DBTask extends Thread {
         try {
             mAPIData = BusanMetroAPI.getResult(mStationCode);
             if (mAPIData != null) {
-                JSONObject response = new JSONObject().getJSONObject("response");
+                JSONObject response = new JSONObject(mAPIData).getJSONObject("response");
                 JSONObject header = response.getJSONObject("header");
                 final String resultCode = header.getString("resultCode");
                 final String resultMsg = header.getString("resultMsg");
